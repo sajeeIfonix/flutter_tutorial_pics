@@ -1,8 +1,11 @@
-// custom widget
-
 // import flutter helper library
 import 'package:flutter/material.dart';
-import 'dart:developer';
+import 'package:http/http.dart' show get;
+
+import 'dart:convert';
+
+import 'models/image_model.dart';
+import 'widgets/image_list.dart';
 
 /*create a class that will be our custom widget.
 This custom widget must extend the 'StatelessWidget' base class*/
@@ -16,6 +19,18 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   // instance variables to track state of the widget
   int counter = 0;
+  List<ImageModel> images = [];
+
+  void fetchImage() async {
+    counter++;
+    final url = Uri.parse('https://jsonplaceholder.typicode.com/photos/$counter');
+    final response = await get(url);
+    var imageModel = ImageModel.fromJSON(json.decode(response.body));
+    setState(() {
+      images.add(imageModel);
+      counter;
+    });
+  }
 
 /*Must define a 'build' method that returns the widget that will be rendered*/
   @override
@@ -27,18 +42,11 @@ class _AppState extends State<App> {
         backgroundColor: Colors.amber,
         centerTitle: true,
       ),
-      body: Text('$counter'),
+      body: ImageList(images),
       floatingActionButton: FloatingActionButton(
+        onPressed: fetchImage,
         child: const Icon(Icons.add),
-        onPressed: () {
-          setState(() {
-            counter++;
-          });
-          log('FAB pressed');
-        },
       ),
     ));
   }
 }
-
-
